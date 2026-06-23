@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Document</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <section id="title-bar">
+            <img id="icon" src="./icon.png">
+            <div id="title">ToDo App</div>
+            <div id="window-buttons">
+                <img id="minimize" src="./assets/underscore.svg">
+                <img id="maximize" src="./assets/maximize.svg">
+                <img id="close" src="./assets/xmark-large.svg">
+            </div>
+        </section>
+
+        <section id="content">
+            <img id="theme-toggle" src="./assets/sun.svg">
+
+            <section id="sidebar">
+                <div id="all" class="sidebar-item active">All Todos</div>
+                <div id="folders-header">
+                    <span>Folders</span>
+                    <img src="./assets/plus-large.svg" id="add-folder-btn" class="icon-btn" style="width: 16px; cursor: pointer;">
+                </div>
+                <div id="folders"></div>
+                <div id="account">
+                    <div id="avatar">U</div>
+                    <div id="name">User</div>
+                </div>
+            </section>
+
+            <section id="main">
+                <div id="todo-controls">
+                    <button id="create-todo-btn">Create Todo</button>
+                    <select id="sort-todos-select">
+                        <option value="date-desc">Newest First</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="title-asc">Title (A-Z)</option>
+                        <option value="title-desc">Title (Z-A)</option>
+                        <option value="status">Status</option>
+                    </select>
+                </div>
+                <div id="todos-list"></div>
+            </section>
+        </section>
+
+        <!-- Modals -->
+        <section id="modals" class="hidden">
+            <div id="modal-overlay"></div>
+            
+            <!-- Connection Error Modal -->
+            <div id="error-modal" class="modal hidden">
+                <h2>Connection Error</h2>
+                <p>Could not connect to the API. Please ensure the server is running.</p>
+                <button id="retry-btn">Retry Connection</button>
+            </div>
+
+            <!-- Login Modal -->
+            <div id="login-modal" class="modal hidden">
+                <h2>Login</h2>
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="example@email.com">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password">
+                </div>
+                <div class="error-text" id="login-error"></div>
+                <button id="login-btn">Login</button>
+                <div class="switch-modal">Don't have an account? <span id="switch-to-register" class="link">Register here</span></div>
+            </div>
+
+            <!-- Register Modal -->
+            <div id="register-modal" class="modal hidden">
+                <h2>Register</h2>
+                <div class="input-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" placeholder="johndoe">
+                </div>
+                <div class="input-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="example@email.com">
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password">
+                </div>
+                <div class="error-text" id="register-error"></div>
+                <button id="register-btn">Register</button>
+                <div class="switch-modal">Already have an account? <span id="switch-to-login" class="link">Login here</span></div>
+            </div>
+
+            <!-- Account Modal -->
+            <div id="account-modal" class="modal hidden">
+                <h2>Account</h2>
+                <p class="account-clear-description">Delete all todos, tags, and folders while keeping this account.</p>
+                <div id="account-clear-status" class="error-text"></div>
+                <button id="clear-account-data-btn" class="danger-btn">Clear account data</button>
+                <button id="logout-btn" class="danger-btn">Disconnect</button>
+                <button class="close-modal-btn">Close</button>
+            </div>
+
+            <!-- Todo Modal -->
+            <div id="todo-modal" class="modal hidden">
+                <h2 id="todo-modal-title">Create Todo</h2>
+                <input type="hidden" id="todo-id">
+                <div class="input-group">
+                    <label for="todo-title-input">Title</label>
+                    <input type="text" id="todo-title-input">
+                </div>
+                <div class="input-group">
+                    <label for="todo-content-input">Content</label>
+                    <textarea id="todo-content-input" rows="3"></textarea>
+                </div>
+                <div class="todo-form-row">
+                    <div class="input-group">
+                        <label for="todo-folder-input">Folder</label>
+                        <select id="todo-folder-input">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="todo-status-input">Status</label>
+                        <select id="todo-status-input">
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="blocked">Blocked</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="todo-tags-input">Tags (comma separated)</label>
+                    <div style="position: relative;">
+                        <input type="text" id="todo-tags-input" placeholder="work, urgent" style="width: 100%;">
+                        <div id="tags-autocomplete" class="hidden"></div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label id="todo-parents-label">Parent notes</label>
+                    <div id="todo-parents-input" class="todo-parent-picker">
+                        <button type="button" id="todo-parents-trigger" class="todo-parent-trigger" aria-expanded="false">
+                            <span id="todo-parents-summary">Choose parent notes</span>
+                            <span aria-hidden="true">▾</span>
+                        </button>
+                        <div id="todo-parent-options" class="todo-parent-options hidden" role="group" aria-labelledby="todo-parents-label"></div>
+                    </div>
+                    <div class="input-hint">Select every note this todo depends on.</div>
+                </div>
+                <div id="todo-modal-error" class="error-text"></div>
+                <div class="modal-actions">
+                    <button class="close-modal-btn">Cancel</button>
+                    <button id="save-todo-btn">Save</button>
+                </div>
+            </div>
+
+            <!-- Folder Modal -->
+            <div id="folder-modal" class="modal hidden">
+                <h2 id="folder-modal-title">Create Folder</h2>
+                <input type="hidden" id="folder-id">
+                <div class="input-group">
+                    <label for="folder-name-input">Folder Name</label>
+                    <input type="text" id="folder-name-input">
+                </div>
+                <div class="input-group">
+                    <label for="folder-parent-input">Parent Folder</label>
+                    <select id="folder-parent-input">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div id="folder-modal-error" class="error-text"></div>
+                <button id="save-folder-btn">Create</button>
+                <button id="delete-folder-btn" class="danger-btn hidden">Delete</button>
+                <button class="close-modal-btn">Cancel</button>
+            </div>
+        </section>
+    </body>
+    <script src="./renderer.js"></script>
+</html>

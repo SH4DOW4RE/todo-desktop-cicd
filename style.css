@@ -1,0 +1,623 @@
+@font-face {
+    src: url("./assets/Noto_Sans_Display/NotoSansDisplay-VariableFont_wdth\,wght.ttf");
+    font-family: 'NotoSans-Display';
+}
+@font-face {
+    src: url("./assets/Noto_Sans_Display//NotoSansDisplay-Italic-VariableFont_wdth\,wght.ttf");
+    font-family: 'NotoSans-Display';
+    font-style: italic;
+}
+@font-face {
+    src: url("./assets/Noto_Sans_Mono/NotoSansMono-VariableFont_wdth\,wght.ttf");
+    font-family: 'NotoSans-Mono';
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'NotoSans-Display';
+}
+
+body {
+    background: var(--background0);
+    color: var(--foreground0);
+}
+
+body.dark #title-bar #window-buttons img { filter: invert(); }
+body.dark #content #theme-toggle { filter: invert(); }
+
+#title-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 30px;
+    background: var(--background1);
+    border-bottom: 1px solid var(--foreground10);
+    user-select: none;
+    /* Make it drag the window */
+    app-region: drag;
+}
+
+#title-bar #icon {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translate(0%, -50%);
+}
+
+#title-bar #title {
+    position: absolute;
+    top: 50%;
+    left: 30px;
+    transform: translate(0%, -50%);
+}
+
+#title-bar #window-buttons {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translate(0%, -50%);
+    height: 30px;
+    app-region: no-drag;
+}
+
+#title-bar #window-buttons img {
+    width: 20px;
+    height: 20px;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+#content {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    user-select: none;
+}
+
+#content #theme-toggle {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+    cursor: pointer;
+    z-index: 999;
+}
+
+#content #sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 200px;
+    height: 100%;
+    background: var(--background1);
+    border-right: 1px solid var(--foreground10);
+}
+
+#content #account {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+    height: 50px;
+    border-radius: 8px;
+    background: var(--background3);
+}
+
+#content #account #avatar {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translate(0%, -50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    background: linear-gradient(135deg,var(--accent0) 0%, var(--accent10) 100%);
+    text-align: center;
+    line-height: 40px;
+    font-size: 20px;
+}
+
+#content #account #name {
+    position: absolute;
+    top: 50%;
+    left: 50px;
+    transform: translate(0%, -50%);
+    width: calc(100% - 55px);
+    text-overflow: ellipsis;
+}
+
+.sidebar-item, #folders-header {
+    padding: 15px;
+    color: var(--foreground3);
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 1px solid var(--background2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-item:hover {
+    background: var(--background2);
+    color: var(--foreground0);
+}
+
+.sidebar-item.active {
+    background: var(--background3);
+    color: var(--accent0);
+    border-left: 4px solid var(--accent0);
+}
+
+#folders-header button {
+    background: none;
+    border: none;
+    color: var(--foreground0);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#folders-header button:hover {
+    color: var(--accent0);
+}
+
+#content #main {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 200px;
+    right: 0;
+    user-select: auto;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* --- Modals --- */
+.hidden {
+    display: none !important;
+}
+
+#modals {
+    position: absolute;
+    top: 30px; /* Below title bar */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+#modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    position: relative;
+    background: var(--background1);
+    border: 1px solid var(--foreground10);
+    border-radius: 12px;
+    padding: clamp(16px, 3vw, 24px);
+    width: min(380px, calc(100vw - 24px));
+    max-height: calc(100vh - 54px);
+    box-sizing: border-box;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#todo-modal {
+    width: min(440px, calc(100vw - 24px));
+}
+
+.modal h2 {
+    margin: 0 0 4px;
+    font-size: clamp(20px, 5vw, 24px);
+    text-align: center;
+    color: var(--accent0);
+}
+
+.modal .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.modal label {
+    font-size: 14px;
+    color: var(--foreground3);
+}
+
+.modal input {
+    background: var(--background2);
+    border: 1px solid var(--background4);
+    color: var(--foreground0);
+    padding: 10px 15px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.modal input:focus {
+    border-color: var(--accent0);
+}
+
+.modal button {
+    background: var(--accent0);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: background 0.2s ease;
+}
+
+.modal button:hover {
+    background: var(--accent2);
+}
+
+.modal .error-text {
+    color: #ff4d4d;
+    font-size: 14px;
+    text-align: center;
+    min-height: 20px;
+}
+
+.modal .error-text.success-text {
+    color: #4dcc7d;
+}
+
+.account-clear-description {
+    margin: 0;
+    color: var(--foreground5);
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.modal .switch-modal {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+    color: var(--foreground5);
+}
+
+.modal .switch-modal .link {
+    color: var(--accent0);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.modal .switch-modal .link:hover {
+    color: var(--accent2);
+}
+
+/* --- Todos --- */
+.todo-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding-bottom: 20px;
+}
+
+.todo-card {
+    background: var(--background2);
+    border: 1px solid var(--background4);
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.todo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    border-color: var(--accent0);
+}
+
+.todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.todo-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--foreground0);
+}
+
+.todo-status {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-pending { background: var(--background5); color: var(--foreground0); }
+.status-in_progress { background: var(--accent0); color: white; }
+.status-completed { background: #4CAF50; color: white; }
+.status-blocked { background: #F44336; color: white; }
+
+.todo-content {
+    font-size: 14px;
+    color: var(--foreground3);
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.todo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--foreground6);
+    margin-top: 10px;
+    border-top: 1px solid var(--background4);
+    padding-top: 10px;
+}
+
+/* --- Tags Autocomplete --- */
+#tags-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--background2);
+    border: 1px solid var(--background4);
+    border-top: none;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1002;
+}
+
+#tags-autocomplete div {
+    padding: 8px 15px;
+    cursor: pointer;
+    color: var(--foreground0);
+}
+
+#tags-autocomplete div:hover {
+    background: var(--background3);
+}
+
+/* --- Todo Controls --- */
+#todo-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 10px;
+    padding-right: 50px; /* Avoid overlapping with the theme toggle */
+}
+
+#todo-controls button, #todo-controls select {
+    background: var(--background2);
+    border: 1px solid var(--background4);
+    color: var(--foreground0);
+    padding: 10px 15px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#todo-controls button:hover, #todo-controls select:hover {
+    border-color: var(--accent0);
+}
+
+.modal textarea, .modal select {
+    background: var(--background2);
+    border: 1px solid var(--background4);
+    color: var(--foreground0);
+    padding: 10px 15px;
+    border-radius: 6px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.todo-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.todo-parent-picker {
+    position: relative;
+    min-width: 0;
+}
+
+.modal .todo-parent-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--background2);
+    border: 1px solid var(--background4);
+    border-radius: 6px;
+    color: var(--foreground0);
+    font-size: 14px;
+    font-weight: normal;
+    text-align: left;
+}
+
+.modal .todo-parent-trigger:hover,
+.modal .todo-parent-trigger:focus {
+    background: var(--background2);
+    border-color: var(--accent0);
+}
+
+#todo-parents-summary {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.todo-parent-options {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: min(180px, 35vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 6px;
+    background: var(--background2);
+    border: 1px solid var(--background4);
+    border-radius: 6px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.todo-parent-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.todo-parent-option:hover {
+    background: var(--background3);
+}
+
+.todo-parent-option input {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--accent0);
+}
+
+.todo-parent-option span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.todo-parent-empty,
+.input-hint {
+    color: var(--foreground5);
+    font-size: 12px;
+}
+
+.todo-parent-empty {
+    padding: 8px;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-actions button {
+    flex: 1;
+}
+
+@media (max-width: 420px), (max-height: 620px) {
+    #modals {
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .modal,
+    #todo-modal {
+        width: calc(100vw - 16px);
+        max-height: calc(100vh - 46px);
+        padding: 14px;
+        gap: 8px;
+    }
+
+    .todo-form-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .todo-parent-options {
+        max-height: min(150px, 30vh);
+    }
+}
+
+.modal textarea:focus, .modal select:focus {
+    border-color: var(--accent0);
+}
+
+.modal .danger-btn {
+    background: #ff4d4d;
+}
+
+.modal .danger-btn:hover {
+    background: #ff1a1a;
+}
+
+.modal .close-modal-btn {
+    background: var(--background4);
+}
+
+.modal .close-modal-btn:hover {
+    background: var(--background5);
+}
+
+.todo-card {
+    cursor: pointer;
+}
+
+.todo-delete-btn {
+    background: none;
+    border: none;
+    color: var(--foreground6);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.todo-delete-btn:hover {
+    color: #ff4d4d;
+}
+
+#content #account {
+    cursor: pointer;
+}
+#content #account:hover {
+    background: var(--background4);
+}

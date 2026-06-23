@@ -1,7 +1,7 @@
 {
   "name": "todo-desktop-cicd",
   "version": "1.0.0",
-  "description": "",
+  "description": "A cross-platform Electron desktop client for managing todos, folders, tags, and account data.",
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
@@ -15,8 +15,14 @@
     "type": "git",
     "url": "git+https://github.com/SH4DOW4RE/todo-desktop-cicd.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "electron",
+    "todo",
+    "desktop",
+    "ci",
+    "cd"
+  ],
+  "author": "SH4DOW4RE",
   "license": "MIT",
   "type": "commonjs",
   "bugs": {

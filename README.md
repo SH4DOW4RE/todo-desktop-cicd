@@ -1,3 +1,6 @@
+![GitHub Actions Workflow Tests Status](https://img.shields.io/github/actions/workflow/status/SH4DOW4RE/todo-desktop-cicd/ci.yml?style=for-the-badge&logo=github&label=TESTS)
+![GitHub Actions Workflow Release Status](https://img.shields.io/github/actions/workflow/status/SH4DOW4RE/todo-desktop-cicd/release.yml?style=for-the-badge&logo=github)
+
 # Todo Desktop CI/CD
 
 Todo Desktop CI/CD is an Electron desktop client for managing todos through the Shadoweb Todo API. It provides a custom desktop interface for folders, notes, tags, parent relationships, authentication, and account maintenance, with automated tests, coverage gates, release builds, and GitHub-based application updates.

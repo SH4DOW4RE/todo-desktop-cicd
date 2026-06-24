@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -66,7 +66,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
       - name: Install Linux maker dependencies
@@ -77,7 +77,17 @@ jobs:
         run: npm ci
 
       - name: Build installer
-        run: npx --no-install electron-forge make --platform="${{ matrix.platform }}" --targets="${{ matrix.targets }}"
+        shell: bash
+        run: |
+          npx --no-install electron-forge make \
+            --platform="${{ matrix.platform }}" \
+            --targets="${{ matrix.targets }}"
+
+          echo "Forge make exited with code $?"
+          echo "Repository root:"
+          pwd
+          echo "Top-level files:"
+          ls -la
 
       - name: Collect installer artifacts
         shell: bash
@@ -85,7 +95,7 @@ jobs:
           mkdir -p release-assets
 
           echo "All files produced under out:"
-          find out -maxdepth 10 -type f -print | sort || true
+          find out -maxdepth 10 -type f -print | sort
 
           echo "Collecting release artifacts..."
           find out -maxdepth 10 -type f \( \

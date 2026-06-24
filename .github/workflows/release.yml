@@ -119,11 +119,14 @@ jobs:
             exit 1
           fi
 
+          APP_VERSION="$(node -p "require('./package.json').version")"
           ZIP_DIR="out/make/zip/darwin/${{ matrix.arch }}"
-          ZIP_PATH="$ZIP_DIR/todo-desktop-cicd-darwin-${{ matrix.arch }}-${{ github.ref_name }}.zip"
+          ZIP_PATH="$ZIP_DIR/todo-desktop-cicd-darwin-${{ matrix.arch }}-$APP_VERSION.zip"
 
           mkdir -p "$ZIP_DIR"
-          rm -f "$ZIP_PATH"
+
+          echo "Removing old macOS ZIP files:"
+          find "$ZIP_DIR" -maxdepth 1 -type f -name "*.zip" -print -delete
 
           ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ZIP_PATH"
 

@@ -111,6 +111,20 @@ The workflow:
 
 Manual release dispatch is also available from GitHub Actions and requires an explicit tag input.
 
+### macOS first launch
+
+The macOS build is currently ad-hoc signed but not notarized.
+
+On first launch, macOS may block the app. To open it:
+
+1. Open **System Settings**
+2. Go to **Privacy & Security**
+3. Scroll to the blocked app message
+4. Click **Open Anyway**
+5. Confirm once
+
+After that, the app should launch normally.
+
 ## Auto Updates
 
 Packaged Windows and macOS builds use Electron's built-in `autoUpdater` through `update.electronjs.org`.

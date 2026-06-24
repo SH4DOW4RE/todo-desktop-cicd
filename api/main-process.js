@@ -52,7 +52,7 @@ function registerApiHandlers(api) {
 // Call this inside your existing app.whenReady() before creating the window.
 function initializeTodoApi() {
   const isDebug = process.env.SHADOWEB_DEBUG === 'true' || process.env.SHADOWEB_DEBUG === '1';
-  const API_URL = isDebug ? 'http://127.0.0.1:4040' : 'https://todo-api.shadoweb.fr';
+  const API_URL = isDebug && !app.isPackaged ? 'http://127.0.0.1:4040' : 'https://todo-api.shadoweb.fr';
 
   if (!app.isReady()) throw new Error('initializeTodoApi must run after app.whenReady()');
   const api = createTodoApi({

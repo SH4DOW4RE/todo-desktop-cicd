@@ -94,14 +94,12 @@ jobs:
         run: |
           mkdir -p release-assets
 
-          echo "All files produced under out:"
-          find out -maxdepth 10 -type f -print | sort
+          echo "All files produced under out/make:"
+          find out/make -maxdepth 10 -type f -print | sort
 
           echo "Collecting release artifacts..."
-          find out -maxdepth 10 -type f \( \
+          find out/make -maxdepth 10 -type f \( \
             -name "*.exe" -o \
-            -name "*.nupkg" -o \
-            -name "RELEASES" -o \
             -name "*.deb" -o \
             -name "*.rpm" -o \
             -name "*.zip" \

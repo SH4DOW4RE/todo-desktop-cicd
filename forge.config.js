@@ -12,19 +12,27 @@ module.exports = {
       config: {
         iconURL: "https://raw.githubusercontent.com/SH4DOW4RE/todo-desktop-cicd/refs/heads/main/icon.ico",
         setupIcon: "./icon.ico",
+        icon: "./icon.ico",
       },
     },
     {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
+      config: {
+        icon: "./icon.icns",
+      },
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        icon: "./icon.png",
+      },
     },
     {
       name: '@electron-forge/maker-rpm',
-      config: {},
+      config: {
+        icon: "./icon.png",
+      },
     },
   ],
   plugins: [

@@ -49,14 +49,17 @@ jobs:
           - name: Windows installer
             os: windows-latest
             platform: win32
+            arch: x64
             targets: "@electron-forge/maker-squirrel"
           - name: Linux installers
             os: ubuntu-latest
             platform: linux
+            arch: x64
             targets: "@electron-forge/maker-deb,@electron-forge/maker-rpm"
           - name: macOS app archive
             os: macos-latest
             platform: darwin
+            arch: arm64
             targets: "@electron-forge/maker-zip"
 
     steps:
@@ -81,13 +84,63 @@ jobs:
         run: |
           npx --no-install electron-forge make \
             --platform="${{ matrix.platform }}" \
+            --arch="${{ matrix.arch }}" \
             --targets="${{ matrix.targets }}"
 
-          echo "Forge make exited with code $?"
-          echo "Repository root:"
-          pwd
-          echo "Top-level files:"
-          ls -la
+      - name: Ad-hoc sign macOS app
+        if: matrix.platform == 'darwin'
+        shell: bash
+        run: |
+          APP_PATH="$(find out -maxdepth 4 -type d -name '*.app' | head -n 1)"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app bundle found under out"
+            find out -maxdepth 6 -print || true
+            exit 1
+          fi
+
+          echo "Signing app:"
+          echo "$APP_PATH"
+
+          codesign --force --deep --sign - "$APP_PATH"
+
+          echo "Verifying signature:"
+          codesign --verify --deep --strict --verbose=4 "$APP_PATH"
+
+      - name: Recreate macOS ZIP after signing
+        if: matrix.platform == 'darwin'
+        shell: bash
+        run: |
+          APP_PATH="$(find out -maxdepth 4 -type d -name '*.app' | head -n 1)"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app bundle found under out"
+            find out -maxdepth 6 -print || true
+            exit 1
+          fi
+
+          ZIP_DIR="out/make/zip/darwin/${{ matrix.arch }}"
+          ZIP_PATH="$ZIP_DIR/todo-desktop-cicd-darwin-${{ matrix.arch }}-${{ github.ref_name }}.zip"
+
+          mkdir -p "$ZIP_DIR"
+          rm -f "$ZIP_PATH"
+
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ZIP_PATH"
+
+          echo "Created signed ZIP:"
+          ls -lh "$ZIP_PATH"
+      
+      - name: Verify macOS Gatekeeper status
+        if: matrix.platform == 'darwin'
+        shell: bash
+        run: |
+          APP_PATH="$(find out -maxdepth 4 -type d -name '*.app' | head -n 1)"
+
+          echo "codesign:"
+          codesign --verify --deep --strict --verbose=4 "$APP_PATH"
+
+          echo "spctl:"
+          spctl --assess --type execute --verbose=4 "$APP_PATH" || true
 
       - name: Collect installer artifacts
         shell: bash

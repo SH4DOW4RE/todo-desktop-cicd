@@ -1,6 +1,6 @@
 {
   "name": "todo-desktop-cicd",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A cross-platform Electron desktop client for managing todos, folders, tags, and account data.",
   "main": "main.js",
   "scripts": {

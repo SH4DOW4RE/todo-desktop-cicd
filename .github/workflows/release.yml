@@ -79,21 +79,34 @@ jobs:
       - name: Build installer
         run: npx --no-install electron-forge make --platform="${{ matrix.platform }}" --targets="${{ matrix.targets }}"
 
-      - name: Show build output
+      - name: Collect installer artifacts
         shell: bash
         run: |
-          pwd
-          find out -type f -maxdepth 6 || true
+          mkdir -p release-assets
+
+          echo "All files produced under out:"
+          find out -maxdepth 10 -type f -print | sort || true
+
+          echo "Collecting release artifacts..."
+          find out -maxdepth 10 -type f \( \
+            -name "*.exe" -o \
+            -name "*.nupkg" -o \
+            -name "RELEASES" -o \
+            -name "*.deb" -o \
+            -name "*.rpm" -o \
+            -name "*.zip" \
+          \) -exec cp -v {} release-assets/ \;
+
+          echo "Collected artifacts:"
+          find release-assets -type f -print | sort
+
+          test "$(find release-assets -type f | wc -l)" -gt 0
 
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-installers
-          path: |
-            out/make/squirrel.windows/x64/*.exe
-            out/make/deb/x64/*.deb
-            out/make/rpm/x64/*.rpm
-            out/make/zip/darwin/x64/*.zip
+          path: release-assets/*
           if-no-files-found: error
 
   publish:

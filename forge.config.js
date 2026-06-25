@@ -5,6 +5,7 @@ module.exports = {
   packagerConfig: {
     asar: true,
     icon: './icon',
+    executableName: 'todo-desktop-cicd',
   },
   rebuildConfig: {},
   makers: [

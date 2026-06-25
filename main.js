@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, autoUpdater, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, autoUpdater, dialog, shell } = require("electron");
 const path = require("node:path");
 const isSquirrelStartup = require("electron-squirrel-startup");
 
@@ -8,33 +8,33 @@ if (isSquirrelStartup) app.quit();
 
 const UPDATE_REPOSITORY = "SH4DOW4RE/todo-desktop-cicd";
 const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
+const LATEST_RELEASE_API_URL = `https://api.github.com/repos/${UPDATE_REPOSITORY}/releases/latest`;
+const LATEST_RELEASE_URL = `https://github.com/${UPDATE_REPOSITORY}/releases/latest`;
 
-function configureAutoUpdates(win) {
-  if (!app.isPackaged || !["darwin", "win32"].includes(process.platform)) return;
+function sendUpdateStatus(win, status, message) {
+  if (!win.isDestroyed()) {
+    win.webContents.send("app:update-status", { status, message });
+  }
+}
 
-  const feedUrl = `https://update.electronjs.org/${UPDATE_REPOSITORY}/${process.platform}-${process.arch}/${app.getVersion()}`;
+function configureWindowsAutoUpdates(win) {
+  const feedUrl = `https://update.electronjs.org/${UPDATE_REPOSITORY}/win32-${process.arch}/${app.getVersion()}`;
   autoUpdater.setFeedURL({ url: feedUrl });
 
-  const sendUpdateStatus = (status, message) => {
-    if (!win.isDestroyed()) {
-      win.webContents.send("app:update-status", { status, message });
-    }
-  };
-
   autoUpdater.on("checking-for-update", () => {
-    sendUpdateStatus("checking", "Checking for updates…");
+    sendUpdateStatus(win, "checking", "Checking for updates…");
   });
 
   autoUpdater.on("update-available", () => {
-    sendUpdateStatus("downloading", "Downloading update…");
+    sendUpdateStatus(win, "downloading", "Downloading update…");
   });
 
   autoUpdater.on("update-not-available", () => {
-    sendUpdateStatus("current", "App is up to date");
+    sendUpdateStatus(win, "current", "App is up to date");
   });
 
   autoUpdater.on("update-downloaded", async (_event, releaseNotes, releaseName) => {
-    sendUpdateStatus("ready", "Update ready to install");
+    sendUpdateStatus(win, "ready", "Update ready to install");
     const { response } = await dialog.showMessageBox({
       type: "info",
       buttons: ["Restart now", "Later"],
@@ -50,11 +50,82 @@ function configureAutoUpdates(win) {
 
   autoUpdater.on("error", error => {
     console.error("Auto-update failed:", error);
-    sendUpdateStatus("error", `Update failed: ${error.message}`);
+    sendUpdateStatus(win, "error", `Update failed: ${error.message}`);
   });
 
   win.webContents.once("did-finish-load", () => autoUpdater.checkForUpdates());
   setInterval(() => autoUpdater.checkForUpdates(), UPDATE_CHECK_INTERVAL_MS);
+}
+
+function isNewerVersion(latestVersion, currentVersion) {
+  const latestParts = latestVersion.replace(/^v/, "").split("-")[0].split(".").map(Number);
+  const currentParts = currentVersion.replace(/^v/, "").split("-")[0].split(".").map(Number);
+  const partCount = Math.max(latestParts.length, currentParts.length);
+
+  for (let index = 0; index < partCount; index += 1) {
+    const latestPart = latestParts[index] || 0;
+    const currentPart = currentParts[index] || 0;
+    if (latestPart !== currentPart) return latestPart > currentPart;
+  }
+
+  return false;
+}
+
+function configureManualUpdates(win) {
+  let promptedVersion = null;
+
+  const checkForUpdate = async () => {
+    sendUpdateStatus(win, "checking", "Checking for updates…");
+
+    try {
+      const response = await fetch(LATEST_RELEASE_API_URL, {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "User-Agent": `Todo-Desktop-CICD/${app.getVersion()}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`GitHub returned HTTP ${response.status}`);
+      }
+
+      const release = await response.json();
+      if (!isNewerVersion(release.tag_name, app.getVersion())) {
+        sendUpdateStatus(win, "current", "App is up to date");
+        return;
+      }
+
+      sendUpdateStatus(win, "ready", `Version ${release.tag_name} is available`);
+      if (promptedVersion === release.tag_name) return;
+      promptedVersion = release.tag_name;
+
+      const { response: selectedButton } = await dialog.showMessageBox(win, {
+        type: "info",
+        buttons: ["Download", "Later"],
+        defaultId: 0,
+        cancelId: 1,
+        title: "Update available",
+        message: `${release.tag_name} is available.`,
+        detail: "Would you like to open the latest GitHub release and download the installer?"
+      });
+
+      if (selectedButton === 0) {
+        await shell.openExternal(release.html_url || LATEST_RELEASE_URL);
+      }
+    } catch (error) {
+      console.error("Update check failed:", error);
+      sendUpdateStatus(win, "error", `Update check failed: ${error.message}`);
+    }
+  };
+
+  win.webContents.once("did-finish-load", checkForUpdate);
+  setInterval(checkForUpdate, UPDATE_CHECK_INTERVAL_MS);
+}
+
+function configureUpdates(win) {
+  if (!app.isPackaged) return;
+  if (process.platform === "win32") configureWindowsAutoUpdates(win);
+  if (["darwin", "linux"].includes(process.platform)) configureManualUpdates(win);
 }
 
 
@@ -81,7 +152,7 @@ const createWindow = () => {
 app.whenReady().then(() => {
   initializeTodoApi();
   const win = createWindow();
-  configureAutoUpdates(win);
+  configureUpdates(win);
 
   ipcMain.handle("app:get-info", () => ({
     ok: true,

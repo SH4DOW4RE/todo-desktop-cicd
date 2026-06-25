@@ -101,6 +101,21 @@ document.querySelector("#title-bar #window-buttons #close").addEventListener("cl
   await window.app.window_close();
 });
 
+let updateStatusTimeout;
+window.app.onUpdateStatus(({ status, message }) => {
+  const updateStatus = document.getElementById("update-status");
+  const updateMessage = document.getElementById("update-status-message");
+
+  clearTimeout(updateStatusTimeout);
+  updateStatus.className = status;
+  updateMessage.innerText = message;
+  updateStatus.title = message;
+
+  if (status === "current") {
+    updateStatusTimeout = setTimeout(() => updateStatus.classList.add("hidden"), 3000);
+  }
+});
+
 document.querySelector("#content #theme-toggle").addEventListener("click", () => {
   if (localStorage.getItem("theme") == "dark") {
     localStorage.setItem("theme", "light");
@@ -473,11 +488,25 @@ document.getElementById("save-folder-btn").addEventListener("click", async () =>
   }
 });
 
-document.getElementById("account").addEventListener("click", () => {
+document.getElementById("account").addEventListener("click", async () => {
   const statusText = document.getElementById("account-clear-status");
   statusText.innerText = "";
   statusText.classList.remove("success-text");
   showModal(accountModal);
+
+  try {
+    const appInfo = await window.app.getInfo();
+    const runtimeBadge = document.getElementById("app-runtime-badge");
+
+    document.getElementById("app-version-number").innerText = `v${appInfo.version}`;
+    document.getElementById("app-runtime-label").innerText = appInfo.isPackaged ? "Packaged" : "Development";
+    runtimeBadge.classList.toggle("development", !appInfo.isPackaged);
+  } catch (error) {
+    document.getElementById("app-version-number").innerText = "Version unavailable";
+    document.getElementById("app-runtime-label").innerText = "Unknown";
+    document.getElementById("app-runtime-badge").classList.add("development");
+    console.error("Failed to load application version:", error);
+  }
 });
 
 async function listEveryTodo() {

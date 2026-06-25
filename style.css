@@ -57,6 +57,59 @@ body.dark #content #theme-toggle { filter: invert(); }
     transform: translate(0%, -50%);
 }
 
+#update-status {
+    position: absolute;
+    top: 50%;
+    right: 78px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: min(240px, calc(100vw - 230px));
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--background3);
+    color: var(--foreground3);
+    font-size: 11px;
+    line-height: 16px;
+    transform: translateY(-50%);
+}
+
+#update-status.hidden {
+    display: none;
+}
+
+#update-status-message {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#update-status-indicator {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4dcc7d;
+}
+
+#update-status.checking #update-status-indicator,
+#update-status.downloading #update-status-indicator {
+    width: 9px;
+    height: 9px;
+    border: 2px solid var(--foreground7);
+    border-top-color: var(--accent0);
+    background: transparent;
+    animation: update-status-spin 0.8s linear infinite;
+}
+
+#update-status.error #update-status-indicator {
+    background: #ff4d4d;
+}
+
+@keyframes update-status-spin {
+    to { transform: rotate(360deg); }
+}
+
 #title-bar #window-buttons {
     position: absolute;
     top: 50%;
@@ -298,6 +351,36 @@ body.dark #content #theme-toggle { filter: invert(); }
     font-size: 14px;
     line-height: 1.4;
     text-align: center;
+}
+
+.app-version {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--foreground5);
+    font-size: 12px;
+}
+
+.app-runtime-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 7px;
+    border: 1px solid var(--background4);
+    border-radius: 999px;
+    background: var(--background2);
+}
+
+.app-runtime-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4dcc7d;
+}
+
+.app-runtime-badge.development .app-runtime-indicator {
+    background: #f2b84b;
 }
 
 .modal .switch-modal {

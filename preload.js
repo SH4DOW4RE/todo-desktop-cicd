@@ -15,6 +15,12 @@ contextBridge.exposeInMainWorld("app", {
   window_maximize: () => invoke("window_maximize"),
   window_close: () => invoke("window_close"),
   window_is_maximized: () => invoke("window_is_maximized"),
+  getInfo: () => invoke("app:get-info"),
+  onUpdateStatus: (callback) => {
+    const listener = (_event, updateStatus) => callback(updateStatus);
+    ipcRenderer.on("app:update-status", listener);
+    return () => ipcRenderer.removeListener("app:update-status", listener);
+  },
 
   health: () => invoke('api:health'),
   auth: {

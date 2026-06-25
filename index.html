@@ -11,6 +11,10 @@
         <section id="title-bar">
             <img id="icon" src="./icon.png">
             <div id="title">ToDo App</div>
+            <div id="update-status" class="hidden" role="status" aria-live="polite">
+                <span id="update-status-indicator" aria-hidden="true"></span>
+                <span id="update-status-message"></span>
+            </div>
             <div id="window-buttons">
                 <img id="minimize" src="./assets/underscore.svg">
                 <img id="maximize" src="./assets/maximize.svg">
@@ -99,6 +103,13 @@
             <!-- Account Modal -->
             <div id="account-modal" class="modal hidden">
                 <h2>Account</h2>
+                <div class="app-version" aria-label="Application version">
+                    <span id="app-version-number">v—</span>
+                    <span id="app-runtime-badge" class="app-runtime-badge">
+                        <span class="app-runtime-indicator" aria-hidden="true"></span>
+                        <span id="app-runtime-label">Loading</span>
+                    </span>
+                </div>
                 <p class="account-clear-description">Delete all todos, tags, and folders while keeping this account.</p>
                 <div id="account-clear-status" class="error-text"></div>
                 <button id="clear-account-data-btn" class="danger-btn">Clear account data</button>
